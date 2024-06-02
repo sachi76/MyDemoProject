@@ -34,4 +34,12 @@ public class FakeStoreProductDto {
         return p;
 
     }
+
+    @Override
+    public String toString(){
+        return "FakeStoreProductDto [id="
+                + id + ", title=" + title + ", price=" + price + ", category="
+                + category + ", description=" + description + ", image=" + image
+                + '\'' + "]";
+    }
 }

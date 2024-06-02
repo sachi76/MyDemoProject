@@ -3,12 +3,13 @@ package com.example.mydemoproject.service;
 import com.example.mydemoproject.dto.FakeStoreProductDto;
 import com.example.mydemoproject.exceptions.ProductNotFoundException;
 import com.example.mydemoproject.model.Product;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
+import javax.management.RuntimeErrorException;
 import java.util.List;
 
 @Service
@@ -55,7 +56,7 @@ public class FakeStoreProductService implements  ProductService{
     };
 
     @Override
-    public Product updateProduct(Long productId, Product product){
+    public Product updateProduct(Long productId, Product product) throws ProductNotFoundException{
         FakeStoreProductDto fs = new FakeStoreProductDto();
         fs.setId(product.getId());
         fs.setTitle(product.getTitle());
@@ -64,21 +65,50 @@ public class FakeStoreProductService implements  ProductService{
         fs.setCategory(product.getCategory().getTitle());
         fs.setImage(product.getImageUrl());
 
-        restTemplate.put(
-                "https://fakestoreapi.com/products/"+ productId,
-                fs
-        );
-        return fs.toProduct();
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<FakeStoreProductDto> requestEntity = new HttpEntity<>(fs, headers);
+
+        try {
+            ResponseEntity<FakeStoreProductDto> responseEntity = restTemplate.exchange(
+                    "https://fakestoreapi.com/products/" + productId,
+                    HttpMethod.PUT,
+                    requestEntity,
+                    FakeStoreProductDto.class
+            );
+            if (responseEntity.getStatusCode() == HttpStatus.OK && responseEntity.getBody() != null){
+                return responseEntity.getBody().toProduct();
+            }else{
+                throw new ProductNotFoundException("Product not found with id " + productId);
+            }
+        } catch (HttpClientErrorException.NotFound e){
+            throw new ProductNotFoundException("Product not found with id " + productId);
+        } catch (RestClientException e){
+            throw new RuntimeException("Failed to update product with id: " + productId, e);
+        }
+
     }
 
     @Override
     public void deleteProduct(Long productId) throws ProductNotFoundException {
 
         String url = "https://fakestoreapi.com/products/" + productId;
+
         try {
-            restTemplate.delete(url);
-        } catch (RestClientException e) {
+            ResponseEntity<Void> responseEntity = restTemplate.exchange(
+                    url,
+                    HttpMethod.DELETE,
+                    null,
+                    Void.class
+            );
+
+            if(responseEntity.getStatusCode() != HttpStatus.NO_CONTENT){
+                throw new ProductNotFoundException("Product not found with id " + productId);
+            }
+        } catch (HttpClientErrorException.NotFound e) {
             throw new ProductNotFoundException("Product not found with id" + productId);
+        } catch (RestClientException e){
+            throw new RuntimeException("Failed to delete product with id: " + productId, e);
         }
     }
 
@@ -92,12 +122,28 @@ public class FakeStoreProductService implements  ProductService{
         fs.setDescription(product.getDescription());
         fs.setPrice(product.getPrice());
 
-        FakeStoreProductDto response = restTemplate.postForObject(
+        //Prepare the Http request entity
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<FakeStoreProductDto> requestEntity = new HttpEntity<>(fs, headers);
+
+        try{
+        ResponseEntity<FakeStoreProductDto> responseEntity = restTemplate.exchange(
                 "https://fakestoreapi.com/products",
-                fs,
+                HttpMethod.POST,
+                requestEntity,
                 FakeStoreProductDto.class
         );
-        return response.toProduct();
+
+        //Check the response status and body
+            if (responseEntity.getStatusCode() == HttpStatus.CREATED && responseEntity.getBody() != null){
+                return responseEntity.getBody().toProduct();
+            }else {
+                throw new RuntimeException("Failed to create product");
+            }
+        }catch (RestClientException e){
+            throw new RuntimeException("Failed to create a product", e);
+        }
     }
 
 

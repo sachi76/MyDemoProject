@@ -1,5 +1,6 @@
 package com.example.mydemoproject.controller;
 
+import com.example.mydemoproject.dto.ErrorDto;
 import com.example.mydemoproject.exceptions.ProductNotFoundException;
 import com.example.mydemoproject.model.Category;
 import com.example.mydemoproject.model.Product;
@@ -103,6 +104,15 @@ public class ProductController {
 
         return new ResponseEntity<>(putRequestResponse, HttpStatus.OK);
     }
+
+        @ExceptionHandler(ProductNotFoundException.class)
+        public ResponseEntity<ErrorDto> handleProductNotFoundException(Exception e) {
+        ErrorDto errorDto = new ErrorDto();
+        errorDto.setMessage(e.getMessage());
+
+        return new ResponseEntity<>(errorDto, HttpStatus.NOT_FOUND);
+    }
+
 
     //Deleting a product
     @DeleteMapping("/products/{id}")

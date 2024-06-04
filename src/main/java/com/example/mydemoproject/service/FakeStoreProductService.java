@@ -10,6 +10,7 @@ import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import javax.management.RuntimeErrorException;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -42,17 +43,21 @@ public class FakeStoreProductService implements  ProductService{
 
     @Override
     public List<Product> getAllProducts() throws ProductNotFoundException {
-        ResponseEntity<FakeStoreProductDto> responseEntity = restTemplate.getForEntity(
+        List<Product> products = new ArrayList<>();
+        ResponseEntity<FakeStoreProductDto[]> responseEntity = restTemplate.getForEntity(
                 "https://fakestoreapi.com/products",
-                FakeStoreProductDto.class
+                FakeStoreProductDto[].class
         );
+
         if(responseEntity.getStatusCode() == HttpStatus.OK && responseEntity.getBody() != null){
-            FakeStoreProductDto fakeStoreProductDto = responseEntity.getBody();
-            return List.of(fakeStoreProductDto.toProduct());
+            for(FakeStoreProductDto fs: responseEntity.getBody()){
+                products.add(fs.toProduct());
+            }
         } else {
             throw new ProductNotFoundException("Products not found");
         }
 
+        return products;
     };
 
     @Override

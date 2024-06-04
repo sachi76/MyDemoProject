@@ -136,17 +136,13 @@ public class FakeStoreProductService implements  ProductService{
         );
 
         //Check the response status and body
-            if (responseEntity.getStatusCode() == HttpStatus.CREATED && responseEntity.getBody() != null){
+            if (responseEntity.getStatusCode() == HttpStatus.CREATED && responseEntity.getBody() != null) {
                 return responseEntity.getBody().toProduct();
-            }else {
-                throw new RuntimeException("Failed to create product");
             }
         }catch (RestClientException e){
             throw new RuntimeException("Failed to create a product", e);
         }
+        return product;
     }
-
-
-
 
 }

@@ -12,6 +12,7 @@ import org.springframework.web.client.RestTemplate;
 import javax.management.RuntimeErrorException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class FakeStoreProductService implements  ProductService{
@@ -95,26 +96,33 @@ public class FakeStoreProductService implements  ProductService{
     }
 
     @Override
-    public void deleteProduct(Long productId) throws ProductNotFoundException {
+    public Product deleteProduct(Long productId) throws ProductNotFoundException {
 
         String url = "https://fakestoreapi.com/products/" + productId;
 
+        // Fetch the product details
+        ResponseEntity<FakeStoreProductDto> responseEntity;
         try {
-            ResponseEntity<Void> responseEntity = restTemplate.exchange(
-                    url,
-                    HttpMethod.DELETE,
-                    null,
-                    Void.class
-            );
-
-            if(responseEntity.getStatusCode() != HttpStatus.NO_CONTENT){
-                throw new ProductNotFoundException("Product not found with id " + productId);
-            }
+            responseEntity = restTemplate.getForEntity(url, FakeStoreProductDto.class);
         } catch (HttpClientErrorException.NotFound e) {
-            throw new ProductNotFoundException("Product not found with id" + productId);
-        } catch (RestClientException e){
-            throw new RuntimeException("Failed to delete product with id: " + productId, e);
+            throw new ProductNotFoundException("Product not found with id " + productId);
         }
+
+        if (responseEntity.getStatusCode() != HttpStatus.OK || responseEntity.getBody() == null) {
+            throw new ProductNotFoundException("Product not found with id " + productId);
+        }
+
+        FakeStoreProductDto dto = responseEntity.getBody();
+
+        // Delete the product
+        try {
+            restTemplate.delete(url);
+        } catch (RestClientException e) {
+            throw new RuntimeException("Error interacting with the FakeStore API", e);
+        }
+
+        return dto.toEmptyProduct();
+
     }
 
     @Override

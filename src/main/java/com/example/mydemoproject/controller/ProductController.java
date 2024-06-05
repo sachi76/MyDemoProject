@@ -105,22 +105,32 @@ public class ProductController {
         return new ResponseEntity<>(putRequestResponse, HttpStatus.OK);
     }
 
-        @ExceptionHandler(ProductNotFoundException.class)
-        public ResponseEntity<ErrorDto> handleProductNotFoundException(Exception e) {
-        ErrorDto errorDto = new ErrorDto();
-        errorDto.setMessage(e.getMessage());
 
-        return new ResponseEntity<>(errorDto, HttpStatus.NOT_FOUND);
-    }
 
 
     //Deleting a product
     @DeleteMapping("/products/{id}")
-    public ResponseEntity<Void> deleteProduct(@PathVariable("id") Long productId) throws ProductNotFoundException {
-        productService.deleteProduct(productId);
+    public ResponseEntity<Product> deleteProduct(@PathVariable("id") Long productId) throws ProductNotFoundException {
+        try {
+            Product deletedProduct = productService.deleteProduct(productId);
+            return ResponseEntity.ok(deletedProduct);
+        } catch(ProductNotFoundException e){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
 
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+
+
     }
+
+//    @ExceptionHandler(ProductNotFoundException.class)
+//    public ResponseEntity<ErrorDto> handleProductNotFoundException(Exception e) {
+//        ErrorDto errorDto = new ErrorDto();
+//        errorDto.setMessage(e.getMessage());
+//
+//        return new ResponseEntity<>(errorDto, HttpStatus.NOT_FOUND);
+//    }
 
 }
 

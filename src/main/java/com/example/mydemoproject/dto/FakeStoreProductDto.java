@@ -42,4 +42,15 @@ public class FakeStoreProductDto {
                 + category + ", description=" + description + ", image=" + image
                 + '\'' + "]";
     }
+
+    public Product toEmptyProduct() {
+        Product product = new Product();
+        product.setId(this.id);
+        product.setTitle(""); // Clear the field
+        product.setPrice(0.0); // Clear the field
+//        product.setCategory(""); // Clear the field
+        product.setDescription(""); // Clear the field
+        product.setImageUrl(""); // Clear the field
+        return product;
+    }
 }

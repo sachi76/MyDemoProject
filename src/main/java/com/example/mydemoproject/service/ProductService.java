@@ -10,5 +10,5 @@ public interface ProductService {
     List<Product> getAllProducts() throws ProductNotFoundException;
     Product createProduct(Product product);
     Product updateProduct(Long productId, Product product) throws ProductNotFoundException;
-    void deleteProduct(Long productId) throws ProductNotFoundException;
+    Product deleteProduct(Long productId) throws ProductNotFoundException;
 }

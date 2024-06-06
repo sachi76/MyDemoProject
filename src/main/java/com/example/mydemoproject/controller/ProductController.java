@@ -120,10 +120,17 @@ public class ProductController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
 
-
-
     }
 
+    @GetMapping("/products/category/{category}")
+    public ResponseEntity<List<Product>> getProductsInCategory(@PathVariable("category") String category) {
+        try {
+            List<Product> products = productService.getProductsInCategory(category);
+            return ResponseEntity.ok(products);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
 //    @ExceptionHandler(ProductNotFoundException.class)
 //    public ResponseEntity<ErrorDto> handleProductNotFoundException(Exception e) {
 //        ErrorDto errorDto = new ErrorDto();

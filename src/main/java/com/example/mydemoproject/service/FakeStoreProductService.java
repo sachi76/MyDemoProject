@@ -126,6 +126,30 @@ public class FakeStoreProductService implements  ProductService{
     }
 
     @Override
+    public List<Product> getProductsInCategory(String category) throws ProductNotFoundException  {
+        String url = "https://fakestoreapi.com/products/category/" + category;
+
+        ResponseEntity<FakeStoreProductDto[]> responseEntity;
+        try {
+            responseEntity = restTemplate.getForEntity(url, FakeStoreProductDto[].class);
+        } catch (HttpClientErrorException.NotFound e) {
+            throw new ProductNotFoundException("Products not found in category " + category);
+        }
+
+        if (responseEntity.getStatusCode() != HttpStatus.OK || responseEntity.getBody() == null) {
+            throw new ProductNotFoundException("Products not found in category " + category);
+        }
+        FakeStoreProductDto[] dtos = responseEntity.getBody();
+        List<Product> products = new ArrayList<>();
+        for (FakeStoreProductDto dto : dtos) {
+            products.add(dto.toEmptyProduct());
+        }
+
+        return products;
+
+    }
+
+    @Override
     public Product createProduct(Product product)  {
         FakeStoreProductDto fs = new FakeStoreProductDto();
         fs.setId(product.getId());

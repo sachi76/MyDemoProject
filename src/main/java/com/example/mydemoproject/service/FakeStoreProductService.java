@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-@Service
+@Service("fakeStoreProductService")
 public class FakeStoreProductService implements  ProductService{
 
     public RestTemplate restTemplate;

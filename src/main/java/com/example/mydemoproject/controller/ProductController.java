@@ -5,6 +5,7 @@ import com.example.mydemoproject.exceptions.ProductNotFoundException;
 import com.example.mydemoproject.model.Category;
 import com.example.mydemoproject.model.Product;
 import com.example.mydemoproject.service.ProductService;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,7 +23,7 @@ public class ProductController {
     //creating an instance of ProductController with constructor injecting
     // productService as DI and initializing it
     // Constructor-based dependency injection to initialize productService.
-    public ProductController(ProductService productService) {
+    public ProductController(@Qualifier("selfProductService") ProductService productService) {
         this.productService = productService;
     }
 

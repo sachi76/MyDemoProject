@@ -22,6 +22,7 @@ public class Product extends BaseModel{
     private String imageUrl;
     @ManyToOne(cascade = {CascadeType.PERSIST})
     private Category category;
+    private double weight;
 
     @Override
     public String toString() {

@@ -5,6 +5,9 @@ import com.example.mydemoproject.model.Category;
 import com.example.mydemoproject.model.Product;
 import com.example.mydemoproject.repositories.CategoryRepository;
 import com.example.mydemoproject.repositories.ProductRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -31,8 +34,9 @@ public class SelfProductService implements ProductService{
     }
 
     @Override
-    public List<Product> getAllProducts() throws ProductNotFoundException {
-        return List.of();
+    public Page<Product> getAllProducts(int pageSize, int pageNumber, String fieldName) {
+         Page<Product> allProducts = productRepository.findAll(PageRequest.of(pageNumber,pageSize, Sort.by(fieldName).ascending().and(Sort.by("title").ascending())));
+         return allProducts;
     }
 
     @Override

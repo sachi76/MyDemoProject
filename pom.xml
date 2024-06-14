@@ -11,6 +11,7 @@
 	<groupId>com.example</groupId>
 	<artifactId>MyDemoProject</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
+	<packaging>war</packaging>
 	<name>MyDemoProject</name>
 	<description>MyDemoProject</description>
 	<properties>

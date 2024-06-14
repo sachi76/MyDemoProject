@@ -3,6 +3,7 @@ package com.example.mydemoproject.service;
 import com.example.mydemoproject.dto.FakeStoreProductDto;
 import com.example.mydemoproject.exceptions.ProductNotFoundException;
 import com.example.mydemoproject.model.Product;
+import org.springframework.data.domain.Page;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
@@ -43,22 +44,23 @@ public class FakeStoreProductService implements  ProductService{
     }
 
     @Override
-    public List<Product> getAllProducts() throws ProductNotFoundException {
-        List<Product> products = new ArrayList<>();
-        ResponseEntity<FakeStoreProductDto[]> responseEntity = restTemplate.getForEntity(
-                "https://fakestoreapi.com/products",
-                FakeStoreProductDto[].class
-        );
-
-        if(responseEntity.getStatusCode() == HttpStatus.OK && responseEntity.getBody() != null){
-            for(FakeStoreProductDto fs: responseEntity.getBody()){
-                products.add(fs.toProduct());
-            }
-        } else {
-            throw new ProductNotFoundException("Products not found");
-        }
-
-        return products;
+    public Page<Product> getAllProducts(int pageSize, int pageNumber, String fieldName) throws ProductNotFoundException {
+//        List<Product> products = new ArrayList<>();
+//        ResponseEntity<FakeStoreProductDto[]> responseEntity = restTemplate.getForEntity(
+//                "https://fakestoreapi.com/products",
+//                FakeStoreProductDto[].class
+//        );
+//
+//        if(responseEntity.getStatusCode() == HttpStatus.OK && responseEntity.getBody() != null){
+//            for(FakeStoreProductDto fs: responseEntity.getBody()){
+//                products.add(fs.toProduct());
+//            }
+//        } else {
+//            throw new ProductNotFoundException("Products not found");
+//        }
+//
+//        return Page<products>;
+        return null;
     };
 
     @Override

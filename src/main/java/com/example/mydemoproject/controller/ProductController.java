@@ -24,7 +24,7 @@ public class ProductController {
     //creating an instance of ProductController with constructor injecting
     // productService as DI and initializing it
     // Constructor-based dependency injection to initialize productService.
-    public ProductController(@Qualifier("selfProductService") ProductService productService) {
+    public ProductController(@Qualifier("fakeStoreProductService") ProductService productService) {
         this.productService = productService;
     }
 

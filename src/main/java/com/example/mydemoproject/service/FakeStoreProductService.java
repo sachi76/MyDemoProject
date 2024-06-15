@@ -4,6 +4,7 @@ import com.example.mydemoproject.dto.FakeStoreProductDto;
 import com.example.mydemoproject.exceptions.ProductNotFoundException;
 import com.example.mydemoproject.model.Product;
 import org.springframework.data.domain.Page;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
@@ -18,16 +19,22 @@ import java.util.Optional;
 @Service("fakeStoreProductService")
 public class FakeStoreProductService implements  ProductService{
 
-    public RestTemplate restTemplate;
+    private RestTemplate restTemplate;
+    private RedisTemplate redisTemplate;
 
-    public FakeStoreProductService(RestTemplate restTemplate) {
+    public FakeStoreProductService(RestTemplate restTemplate, RedisTemplate redisTemplate) {
         this.restTemplate = restTemplate;
+        this.redisTemplate = redisTemplate;
     }
 
 
     @Override
     public Product getSingleProduct(Long productId) throws ProductNotFoundException {
 
+        Product productFromRedisTemplate = (Product) redisTemplate.opsForHash().get("PRODUCTS", "PRODUCT_"+productId);
+        if(productFromRedisTemplate != null){
+            return productFromRedisTemplate;
+        }
         ResponseEntity<FakeStoreProductDto> responseEntity = restTemplate.getForEntity(
                 "https://fakestoreapi.com/products/" + productId,
                 FakeStoreProductDto.class
@@ -35,6 +42,7 @@ public class FakeStoreProductService implements  ProductService{
 
         if(responseEntity.getStatusCode() == HttpStatus.OK && responseEntity.getBody() != null){
             FakeStoreProductDto fakeStoreProductDto = responseEntity.getBody();
+            redisTemplate.opsForHash().put("PRODUCTS", "PRODUCT_"+productId,fakeStoreProductDto.toProduct() );
             return fakeStoreProductDto.toProduct();
         } else {
             throw new ProductNotFoundException("Product not found with id " + productId);
